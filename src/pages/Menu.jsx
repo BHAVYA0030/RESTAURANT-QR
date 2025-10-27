@@ -212,12 +212,39 @@ export default function Menu({ tableSlug }) {
   };
 
   // ✅ Place order
-  const placeOrder = () => {
-    console.log("Order placed:", cart);
+  // const placeOrder = () => {
+  //   console.log("Order placed:", cart);
+  //   alert("Order placed successfully!");
+  //   setCart([]);
+  //   setShowCart(false);
+  // };
+const placeOrder = async () => {
+  if (cart.length === 0) {
+    alert("Cart is empty!");
+    return;
+  }
+
+  try {
+    // 🔥 Fixed line — yahan tableSlug ko hardcode kar diya "table1"
+    const res = await api.post("/orders", {
+      tableSlug: "table1", // ✅ Change this if you want to test with other tables like "table2"
+      items: cart.map((item) => ({
+        menuItemId: item._id,
+        qty: item.qty,
+        price: item.price,
+      })),
+    });
+
+    console.log("✅ Order created:", res.data);
     alert("Order placed successfully!");
     setCart([]);
     setShowCart(false);
-  };
+  } catch (err) {
+    console.error("❌ Order placement failed:", err);
+    alert("Failed to place order");
+  }
+};
+
 
   return (
     <div className="relative p-4">
