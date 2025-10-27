@@ -122,6 +122,8 @@ export default function AdminPanel() {
     fetchData();
   }, [token]);
 
+  console.log(orders)
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -148,7 +150,7 @@ export default function AdminPanel() {
                 className="border rounded-lg p-3 bg-gray-50 hover:bg-gray-100 transition"
               >
                 <div className="flex justify-between items-center">
-                  <h3 className="font-bold text-lg">Table #{o.table.number}</h3>
+                  <h3 className="font-bold text-lg">Table #{o?.table?.number}</h3>
                   <span
                     className={`px-2 py-1 rounded text-sm ${
                       o.status === "completed"
