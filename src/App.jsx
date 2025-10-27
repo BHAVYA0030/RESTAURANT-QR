@@ -93,23 +93,22 @@
 // }
 
 // export default App;
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import Menu from "./pages/Menu";
 import AdminPanel from "./pages/AdminPanel";
 import StaffDashboard from "./pages/StaffDashboard";
-
-import Menu from "./pages/Menu";
+import MenuWrapper from "./pages/MenuWrapper";
 
 const App = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
-      
-      <Route path="/menu" element={<Menu />} />
-
+      <Route path="/menu" element={<Navigate to="/menu/default-table" />} />
+      <Route path="/menu/:tableSlug" element={<MenuWrapper />} />
       <Route
         path="/admin"
         element={
@@ -118,7 +117,6 @@ const App = () => {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/staff"
         element={
@@ -132,3 +130,5 @@ const App = () => {
 };
 
 export default App;
+
+

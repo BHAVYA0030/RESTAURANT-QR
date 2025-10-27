@@ -24,7 +24,7 @@ const Home = () => {
         <div className="flex flex-wrap gap-4 justify-center">
           <Link
             to="/menu"
-            className="px-8 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl shadow-md transition-all"
+            className="px-8 py-3 bg-orange-500 hover:bg-orange-600 text-black font-semibold rounded-xl shadow-md transition-all"
           >
             View Menu
           </Link>

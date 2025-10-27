@@ -1,114 +1,65 @@
-// const express = require('express');
-// const router = express.Router();
-// const MenuItem = require('../models/MenuItem');
-// const MenuCategory = require('../models/MenuCategory');
+const express = require("express");
+const jwt = require("jsonwebtoken");
+const MenuItem = require("../models/MenuItem");
 
-// // GET all categories
-// router.get('/categories', async (req,res)=>{
-//   const cats = await MenuCategory.find({active:true}).sort({displayOrder:1});
-//   res.json(cats);
-// });
-
-// // GET all menu items with search/filter
-// router.get('/items', async (req,res)=>{
-//   const {search,category,page=1,limit=10} = req.query;
-//   const query = {};
-//   if(category) query.categoryId = category;
-//   if(search) query.name = {$regex: search, $options: 'i'};
-
-//   const items = await MenuItem.find(query)
-//     .skip((page-1)*limit)
-//     .limit(parseInt(limit));
-//   res.json(items);
-// });
-
-// module.exports = router;
-
-// const express = require('express');
-// const router = express.Router();
-// const jwt = require('jsonwebtoken');
-// const MenuItem = require('../models/MenuItem');
-
-// // GET menu items
-// router.get('/', async (req, res) => {
-//   try {
-//     const token = req.headers.authorization?.split(' ')[1];
-//     if (!token) return res.status(401).json({ error: 'Unauthorized' });
-
-//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-//     const role = decoded.role;
-
-//     let items;
-
-//     if (role === 'staff' || role === 'admin') {
-//       // Staff/Admin dekhen sab tables ka menu
-//       items = await MenuItem.find();
-//     } else {
-//       // Customer
-//       const tableSlug = req.query.tableSlug;
-//       if (!tableSlug) return res.status(400).json({ error: 'Table slug required' });
-//       items = await MenuItem.find({ tableSlug });
-//     }
-
-//     if (!items || items.length === 0) return res.json({ message: 'No menu items found' });
-
-//     res.json(items);
-//   } catch (err) {
-//     console.error('Menu fetch error:', err);
-//     res.status(500).json({ error: 'Server error' });
-//   }
-// });
-
-// module.exports = router;
-
-
-const express = require('express');
 const router = express.Router();
-const jwt = require('jsonwebtoken');
-const MenuItem = require('../models/MenuItem');
 
 // ===========================
-// GET ALL MENU ITEMS
+// ✅ GET ALL MENU ITEMS (with tableSlug filter)
 // ===========================
-router.get('/', async (req, res) => {
+router.get("/items", async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ error: 'Unauthorized' });
+    const token = req.headers.authorization?.split(" ")[1];
+    let role = "guest";
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const role = decoded.role;
-    let items;
+    // 🧩 Log request info
+    console.log("📩 Received Query:", req.query);
 
-    if (role === 'staff' || role === 'admin') {
-      // Staff/Admin can see all items
-      items = await MenuItem.find();
-    } else {
-      // Customer view (by tableSlug)
-      const tableSlug = req.query.tableSlug;
-      if (!tableSlug) return res.status(400).json({ error: 'Table slug required' });
-      items = await MenuItem.find({ tableSlug });
+    // ✅ Decode JWT (if available)
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        role = decoded.role;
+      } catch {
+        console.log("⚠️ Invalid or expired token — treating as guest");
+      }
     }
 
-    if (!items || items.length === 0)
-      return res.json({ message: 'No menu items found' });
+    // ✅ Get tableSlug from query (both 'table' and 'tableSlug' accepted)
+    const tableSlug = req.query.tableSlug || req.query.table || "default-table";
+    console.log("🪑 Final TableSlug Used:", tableSlug);
 
-    res.json(items);
+    // ✅ Query filter
+    let items;
+    if (role === "staff" || role === "admin") {
+      items = await MenuItem.find({ tableSlug });
+    } else {
+      items = await MenuItem.find({ tableSlug, availability: true });
+    }
+
+    if (!items || items.length === 0) {
+      console.log("⚠️ No items found for table:", tableSlug);
+      return res.status(200).json({ message: "No menu items found", items: [] });
+    }
+
+    console.log("✅ Items found:", items.length);
+    res.status(200).json(items);
   } catch (err) {
-    console.error('Menu fetch error:', err);
-    res.status(500).json({ error: 'Server error' });
+    console.error("❌ Menu fetch error:", err);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
 // ===========================
 // ✅ GET ALL UNIQUE CATEGORIES
 // ===========================
-router.get('/categories', async (req, res) => {
+router.get("/categories", async (req, res) => {
   try {
-    const categories = await MenuItem.distinct("category");
+    const categories = await MenuItem.distinct("categoryId");
     res.json(categories);
   } catch (err) {
-    console.error('Category fetch error:', err);
-    res.status(500).json({ error: 'Server error' });
+    console.error("❌ Category fetch error:", err);
+    res.status(500).json({ error: "Server error" });
   }
 });
 

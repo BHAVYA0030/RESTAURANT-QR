@@ -154,13 +154,15 @@
 //   );
 // }
 
-
 import React, { useState, useEffect } from "react";
 import api from "../services/api";
 import ItemCard from "../components/ItemCard";
 import CartPanel from "../components/CartPanel";
+import { useNavigate } from "react-router-dom";
 
 export default function Menu({ tableSlug }) {
+  const navigate = useNavigate(); // ✅ Hook must be called inside the component body
+
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [cart, setCart] = useState([]);
@@ -168,6 +170,8 @@ export default function Menu({ tableSlug }) {
 
   // ✅ Fetch menu items
   useEffect(() => {
+    console.log("📩 Fetching menu for tableSlug:", tableSlug);
+
     if (!tableSlug) {
       setIsLoading(false);
       return;
@@ -175,38 +179,39 @@ export default function Menu({ tableSlug }) {
 
     setIsLoading(true);
     api
-      .get(`/menu/items?table=${tableSlug}`)
-      .then((res) => setItems(res.data))
-      .catch(() => setItems([]))
+      .get(`/menu/items?tableSlug=${tableSlug}`)
+      .then((res) => {
+        console.log("✅ API Response:", res.data);
+        setItems(res.data);
+      })
+      .catch((err) => {
+        console.error("❌ API Error:", err);
+        setItems([]);
+      })
       .finally(() => setIsLoading(false));
   }, [tableSlug]);
 
   // ✅ Add to cart
   const addToCart = (item) => {
-  setCart((prevCart) => {
-    const existing = prevCart.find((i) => i._id === item._id);
-    if (existing) {
-      return prevCart.map((i) =>
-        i._id === item._id ? { ...i, qty: i.qty + 1 } : i
-      );
-    }
-    return [...prevCart, { ...item, qty: 1 }];
-  });
-
-  // ✅ Show the cart immediately after adding
-  setShowCart(true);
-
-  // ✅ Optional console log for debugging
-  console.log("Added to cart:", item);
-};
-
+    setCart((prevCart) => {
+      const existing = prevCart.find((i) => i._id === item._id);
+      if (existing) {
+        return prevCart.map((i) =>
+          i._id === item._id ? { ...i, qty: i.qty + 1 } : i
+        );
+      }
+      return [...prevCart, { ...item, qty: 1 }];
+    });
+    setShowCart(true);
+    console.log("Added to cart:", item);
+  };
 
   // ✅ Remove from cart
   const removeFromCart = (id) => {
     setCart((prevCart) => prevCart.filter((i) => i._id !== id));
   };
 
-  // ✅ Place order (you can later connect this to backend)
+  // ✅ Place order
   const placeOrder = () => {
     console.log("Order placed:", cart);
     alert("Order placed successfully!");
@@ -216,7 +221,6 @@ export default function Menu({ tableSlug }) {
 
   return (
     <div className="relative p-4">
-      {/* 🔹 Menu grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {isLoading ? (
           <p className="col-span-full text-center py-8 text-gray-500">
@@ -233,12 +237,20 @@ export default function Menu({ tableSlug }) {
         )}
       </div>
 
-      {/* 🛒 Cart button */}
+      {/* 🛒 Cart Button */}
       <button
         onClick={() => setShowCart(!showCart)}
         className="fixed bottom-5 right-5 bg-blue-500 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-600"
       >
         🛒 Cart ({cart.length})
+      </button>
+
+      {/* 🏠 Home Button */}
+      <button
+        onClick={() => navigate("/")}
+        className="fixed bottom-5 left-5 bg-green-500 text-white px-4 py-2 rounded-full shadow-lg hover:bg-green-600"
+      >
+        🏠 Home
       </button>
 
       {/* 🧾 Cart Panel */}
@@ -252,4 +264,3 @@ export default function Menu({ tableSlug }) {
     </div>
   );
 }
-
