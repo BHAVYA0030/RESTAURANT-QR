@@ -311,13 +311,15 @@ const StaffDashboard = () => {
       const token = localStorage.getItem("token");
       if (!token) {
         setError("No token found. Please login.");
+        
         setLoading(false);
         return;
       }
 
-      const res = await axios.get("http://localhost:4000/api/orders/active", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+    const res = await axios.get("http://localhost:4000/api/orders", {
+  headers: { Authorization: `Bearer ${token}` },
+});
+
 
       if (res.data.message) {
         setOrders([]);
