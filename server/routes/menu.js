@@ -294,7 +294,7 @@ router.get("/items", async (req, res) => {
     );
 
     if (!items.length) {
-      console.log("⚠️ No menu items found");
+      console.log("⚠️ No menu items are found");
       return res.status(200).json({ message: "No menu items found", items: [] });
     }
 
