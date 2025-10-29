@@ -425,6 +425,7 @@
 // }
 import React, { useEffect, useState } from "react";
 import api from "../services/api"; // axios instance with baseURL
+import { QRCodeCanvas } from "qrcode.react";
 
 export default function AdminPanel() {
   const [tables, setTables] = useState([]);
@@ -585,7 +586,18 @@ export default function AdminPanel() {
                 className="border rounded-lg p-3 bg-gray-50 hover:bg-gray-100 transition"
               >
                 <h3 className="font-bold">Table #{t.number}</h3>
-                <p className="text-sm text-gray-600">QR: {t.qrSlug}</p>
+                {/* <p className="text-sm text-gray-600">QR: {t.qrSlug}</p> */}
+                <div className="flex flex-col items-center mt-2">
+  <QRCodeCanvas
+    value={`${window.location.origin}/menu/${t.qrSlug}`} // ✅ generates QR link dynamically
+    size={100} // size in pixels
+    bgColor="#ffffff"
+    fgColor="#000000"
+    includeMargin={true}
+  />
+  <p className="text-sm text-gray-600 mt-2">Slug: {t.qrSlug}</p>
+</div>
+
               </div>
             ))}
           </div>

@@ -459,7 +459,7 @@ export default function Menu({ tableSlug }) {
 
     setIsLoading(true);
     axios
-      .get(`http://10.226.36.188:4000/api/menu/items?tableSlug=${tableSlug}`)
+      .get(`http://192.168.7.165:4000/api/menu/items?tableSlug=${tableSlug}`)
       .then((res) => {
         console.log("✅ API Response:", res.data);
 
@@ -506,7 +506,7 @@ export default function Menu({ tableSlug }) {
     }
 
     try {
-      const res = await axios.post("http://10.226.36.188:4000/api/orders", {
+      const res = await axios.post("http://192.168.7.165:4000/api/orders", {
         tableSlug: tableSlug || "table1",
         items: cart.map((item) => ({
           menuItemId: item._id,

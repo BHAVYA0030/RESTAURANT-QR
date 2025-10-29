@@ -256,7 +256,7 @@ console.log("📦 MONGO_URI:", process.env.MONGO_URI ? "✅ Found" : "❌ Missin
 
 const app = express();
 const PORT = process.env.PORT || 4000;
-const baseURL = process.env.BASE_URL || "http://10.226.36.188:5173";
+const baseURL = process.env.BASE_URL || "http://192.168.7.165:5173";
 // const baseURL = process.env.BASE_URL || `http://localhost:${PORT}`;
 
 // ✅ Middleware setup
@@ -271,7 +271,7 @@ app.use(express.json());
 // );
 app.use(
   cors({
-    origin: ["http://10.226.36.188:5173"], // frontend address
+    origin: ["http://192.168.7.165:5173"], // frontend address
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
@@ -298,7 +298,7 @@ app.get("/", (req, res) => {
 
 app.get("/menu/:slug", (req, res) => {
   const tableSlug = req.params.slug;
-  res.redirect(`http://10.226.36.188:5173/menu/${tableSlug}`);
+  res.redirect(`http://192.168.7.165:5173/menu/${tableSlug}`);
 });
 // ✅ Connect MongoDB and start server
 mongoose
