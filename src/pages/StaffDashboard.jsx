@@ -316,7 +316,7 @@ const StaffDashboard = () => {
         return;
       }
 
-    const res = await axios.get("http://localhost:4000/api/orders", {
+    const res = await axios.get("http://10.226.36.188:4000/api/orders", {
   headers: { Authorization: `Bearer ${token}` },
 });
 
@@ -347,7 +347,7 @@ const StaffDashboard = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.patch(
-        `http://localhost:4000/api/orders/${orderId}/status`,
+        `http://10.226.36.188:4000/api/orders/${orderId}/status`,
         { status },
         {
           headers: { Authorization: `Bearer ${token}` },

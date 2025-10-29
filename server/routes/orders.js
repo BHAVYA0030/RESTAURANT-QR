@@ -570,5 +570,32 @@ router.get("/", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch orders" });
   }
 });
+// ✅ PATCH - Update order status
+router.patch("/:id/status", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ error: "Status is required" });
+    }
+
+    const order = await Order.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    console.log(`✅ Order ${id} status updated to: ${status}`);
+    res.json({ message: "Order status updated successfully", order });
+  } catch (err) {
+    console.error("❌ Error updating order status:", err);
+    res.status(500).json({ error: "Failed to update order status" });
+  }
+});
 
 module.exports = router;

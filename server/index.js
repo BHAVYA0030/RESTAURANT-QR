@@ -240,68 +240,84 @@
 
 
 
-  const express = require("express");
-  const mongoose = require("mongoose");
-  const dotenv = require("dotenv");
-  const path = require("path");
-  const cors = require("cors");
-  const generateQRCodes = require("./utils/generateQRCodes");
-  require("./models/MenuCategory");
+const express = require("express");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const path = require("path");
+const cors = require("cors");
+const generateQRCodes = require("./utils/generateQRCodes");
+require("./models/MenuCategory");
 
-  // ✅ Load environment variables from root .env
-  dotenv.config({ path: path.join(__dirname, "../.env") });
+// ✅ Load environment variables from root .env
+dotenv.config({ path: path.join(__dirname, "../.env") });
 
-  // ✅ Debug log
-  console.log("📦 MONGO_URI:", process.env.MONGO_URI ? "✅ Found" : "❌ Missing");
+// ✅ Debug log
+console.log("📦 MONGO_URI:", process.env.MONGO_URI ? "✅ Found" : "❌ Missing");
 
-  const app = express();
-  const PORT = process.env.PORT || 4000;
-  const baseURL = process.env.BASE_URL || `http://localhost:${PORT}`;
+const app = express();
+const PORT = process.env.PORT || 4000;
+const baseURL = process.env.BASE_URL || "http://10.226.36.188:5173";
+// const baseURL = process.env.BASE_URL || `http://localhost:${PORT}`;
 
-  // ✅ Middleware setup
-  app.use(express.json());
-  app.use(
-    cors({
-      origin: "http://localhost:5173", // frontend (Vite) origin
-      methods: ["GET", "POST", "PUT", "DELETE"],
-      credentials: true,
-    })
-  );
+// ✅ Middleware setup
+app.use(express.json());
+// app.use(
+//   cors({
+//     // origin: "http://localhost:5173", // frontend (Vite) origin
+//     origin: ["http://10.226.36.188:5173"],
+//     methods: ["GET", "POST", "PUT", "DELETE"],
+//     credentials: true,
+//   })
+// );
+app.use(
+  cors({
+    origin: ["http://10.226.36.188:5173"], // frontend address
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
-  // ✅ Import routes
-  const authRoutes = require("./routes/auth");
-  const menuRoutes = require("./routes/menu");
-  const tableRoutes = require("./routes/tables");
-  const orderRoutes = require("./routes/orders");
-  const cartRoutes = require("./routes/cartRoutes");
+// ✅ Import routes
+const authRoutes = require("./routes/auth");
+const menuRoutes = require("./routes/menu");
+const tableRoutes = require("./routes/tables");
+const orderRoutes = require("./routes/orders");
+const cartRoutes = require("./routes/cartRoutes");
 
-  // ✅ Register routes
-  app.use("/api/auth", authRoutes);
-  app.use("/api/menu", menuRoutes);
-  app.use("/api/cart", cartRoutes);
-  app.use("/api/tables", tableRoutes);
-  app.use("/api/orders", orderRoutes);
+// ✅ Register routes
+app.use("/api/auth", authRoutes);
+app.use("/api/menu", menuRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/tables", tableRoutes);
+app.use("/api/orders", orderRoutes);
 
-  // ✅ Default route
-  app.get("/", (req, res) => {
-    res.send("🍽️ Restaurant QR Backend is running successfully!");
-  });
+// ✅ Default route
+app.get("/", (req, res) => {
+  res.send("🍽️ Restaurant QR Backend is running successfully!");
+});
 
-  // ✅ Connect MongoDB and start server
-  mongoose
-    .connect(process.env.MONGO_URI)
-    .then(async () => {
-      console.log("✅ MongoDB connected successfully!");
+app.get("/menu/:slug", (req, res) => {
+  const tableSlug = req.params.slug;
+  res.redirect(`http://10.226.36.188:5173/menu/${tableSlug}`);
+});
+// ✅ Connect MongoDB and start server
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(async () => {
+    console.log("✅ MongoDB connected successfully!");
 
-      try {
-        await generateQRCodes(baseURL);
-        console.log("✅ QR codes generated successfully");
-      } catch (err) {
-        console.error("❌ Error generating QR codes:", err.message);
-      }
+    try {
+      await generateQRCodes(baseURL);
+      console.log("✅ QR codes generated successfully");
+    } catch (err) {
+      console.error("❌ Error generating QR codes:", err.message);
+    }
+    app.listen(PORT, "0.0.0.0", () =>
+      console.log(`🚀 Server running and accessible at: http://0.0.0.0:${PORT}`)
+    );
 
-      app.listen(PORT, () =>
-        console.log(`🚀 Server running on: http://localhost:${PORT}`)
-      );
-    })
-    .catch((err) => console.error("❌ MongoDB connection error:", err.message));
+    // app.listen(PORT, () =>
+    //   console.log(`🚀 Server running on: http://localhost:${PORT}`)
+    // );
+  })
+  .catch((err) => console.error("❌ MongoDB connection error:", err.message));
